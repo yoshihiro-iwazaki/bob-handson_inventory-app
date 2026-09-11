@@ -789,7 +789,7 @@ Press CTRL+C to quit
         
         <p>
             <span class="badge badge-time">想定時間: 10分</span>
-            <span class="badge badge-mode">Mode: 💻 Code</span>
+            <span class="badge badge-mode">Mode: 🤖 Agent</span>
         </p>
         
         <h3>目的</h3>
@@ -804,7 +804,7 @@ Press CTRL+C to quit
         
         <ol>
             <li>Bob IDE で <code>inventory-app</code> ディレクトリをワークスペースとして開きます。</li>
-            <li>Agentic Chat を <strong>Code mode</strong> に切り替えます。</li>
+            <li>Agentic Chat を <strong>Agent mode</strong> に切り替えます。</li>
             <li>チャットに次のコマンドだけを入力して実行します。</li>
         </ol>
         
@@ -823,10 +823,9 @@ Press CTRL+C to quit
         
         <ul>
             <li><code>AGENTS.md</code>: Bob がプロジェクトを理解するためのコンテキスト</li>
-            <li><code>.bob/rules-code/AGENTS-code.md</code>: Code mode 用のコンテキスト</li>
-            <li><code>.bob/rules-plan/AGENTS-plan.md</code>: Plan mode 用のコンテキスト</li>
-            <li><code>.bob/rules-ask/AGENTS-ask.md</code>: Ask mode 用のコンテキスト</li>
-            <li><code>.bob/rules-advanced/AGENTS-advanced.md</code>: Advanced mode 用のコンテキスト</li>
+            <li><code>.bob/rules-agent/AGENTS.md</code>: Agent mode 用のコンテキスト</li>
+            <li><code>.bob/rules-plan/AGENTS.md</code>: Plan mode 用のコンテキスト</li>
+            <li><code>.bob/rules-ask/AGENTS.md</code>: Ask mode 用のコンテキスト</li>
         </ul>
         
         <h3>学習ポイント</h3>
@@ -954,7 +953,7 @@ Press CTRL+C to quit
             <textarea class="prompt-textarea" spellcheck="false" rows="1">context7で使えるツールを確認してください。</textarea>
         </div>
         
-        <p><code>resolve-library-id</code> と <code>get-library-docs</code> が表示されれば設定完了です。</p>
+        <p><code>resolve-library-id</code> と <code>query-docs</code> が表示されれば設定完了です。</p>
         
         <div class="note">
             <strong>補足:</strong> context7 は外部の公式ドキュメントを Bob がリアルタイムで参照できるようにする MCP サーバーです。Flask・pandas など主要ライブラリのドキュメントに対応しています。
@@ -1006,7 +1005,7 @@ context7でFlask・pandasの公式ドキュメントを参照しながら実装�
       - command
       - mcp
     customInstructions: |-
-      実装前に必ず context7 の resolve-library-id → get-library-docs の順で
+      実装前に必ず context7 の resolve-library-id → query-docs の順で
       該当ライブラリのドキュメントを取得し、API 仕様を確認してから実装すること。</code></pre>
         </details>
         
