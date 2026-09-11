@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}ダッシュボード - 在庫管理システム{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4"><i class="bi bi-speedometer2"></i> ダッシュボード</h1>
+    </div>
+</div>
+
+<!-- サマリーカード -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title">総商品数</h6>
+                        <h2 class="mb-0">{{ stats.total_products | format_number }}</h2>
+                    </div>
+                    <i class="bi bi-box-seam fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title">総在庫数</h6>
+                        <h2 class="mb-0">{{ stats.total_quantity | format_number }}</h2>
+                    </div>
+                    <i class="bi bi-stack fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title">総在庫額</h6>
+                        <h2 class="mb-0">{{ stats.total_value | format_currency }}</h2>
+                    </div>
+                    <i class="bi bi-currency-yen fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title">カテゴリ数</h6>
+                        <h2 class="mb-0">{{ stats.categories | format_number }}</h2>
+                    </div>
+                    <i class="bi bi-tags fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 最近の履歴 -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-clock-history"></i> 最近の履歴</h5>
+                <a href="{{ url_for('history') }}" class="btn btn-sm btn-outline-primary">
+                    すべて表示 <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            <div class="card-body">
+                {% if recent_history %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>日時</th>
+                                <th>商品名</th>
+                                <th>操作</th>
+                                <th>数量変化</th>
+                                <th>在庫数</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in recent_history %}
+                            <tr>
+                                <td>{{ item.timestamp }}</td>
+                                <td>{{ item.product_name }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if item.action == '入庫' else 'danger' }}">
+                                        {{ item.action }}
+                                    </span>
+                                </td>
+                                <td class="text-{{ 'success' if item.quantity_change > 0 else 'danger' }}">
+                                    {{ '+' if item.quantity_change > 0 else '' }}{{ item.quantity_change }}
+                                </td>
+                                <td>{{ item.quantity_after }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center mb-0">履歴がありません</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- クイックアクション -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-lightning"></i> クイックアクション</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2 d-md-flex">
+                    <a href="{{ url_for('products') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> 商品を追加
+                    </a>
+                    <a href="{{ url_for('products') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-search"></i> 商品を検索
+                    </a>
+                    <a href="{{ url_for('history') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-clock-history"></i> 履歴を確認
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

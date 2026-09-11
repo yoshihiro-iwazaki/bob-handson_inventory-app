@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IBM Bob ハンズオン</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;600&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'IBM Plex Sans JP', 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+            padding-left: 280px;
+        }
+        
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        
+        .floating-toc {
+            position: fixed;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 240px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        
+        .floating-toc ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .floating-toc li {
+            margin-bottom: 12px;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .floating-toc li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #a8a8a8;
+            font-size: 1.2em;
+            line-height: 1;
+        }
+        
+        .floating-toc a {
+            color: #a8a8a8;
+            text-decoration: none;
+            display: block;
+            transition: all 0.2s;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        
+        .floating-toc a:hover {
+            color: #0f62fe;
+            text-decoration: none;
+        }
+        
+        .floating-toc a.active {
+            color: #0f62fe;
+            font-weight: 600;
+        }
+        
+        .floating-toc a.active::before {
+            color: #0f62fe;
+        }
+        
+        @media (max-width: 1400px) {
+            body {
+                padding-left: 20px;
+            }
+            
+            .floating-toc {
+                display: none;
+            }
+        }
+        
+        h1 {
+            color: #0f62fe;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #0f62fe;
+        }
+        
+        h2 {
+            color: #0f62fe;
+            font-size: 2em;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        h3 {
+            color: #161616;
+            font-size: 1.5em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        h4 {
+            color: #525252;
+            font-size: 1.15em;
+            font-weight: 600;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            font-size: 1em;
+        }
+        
+        strong {
+            font-weight: 600;
+            font-size: 1em;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+        }
+        
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #0f62fe;
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f4f4f4;
+        }
+        
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'IBM Plex Mono', "Courier New", Courier, monospace;
+            font-size: 0.9em;
+            color: #da1e28;
+        }
+        
+        .code-block-wrapper {
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #0f62fe;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            z-index: 10;
+        }
+        
+        .copy-button:hover {
+            background-color: #0353e9;
+        }
+        
+        .copy-button:active {
+            background-color: #002d9c;
+        }
+        
+        .copy-button.copied {
+            background-color: #24a148;
+        }
+        
+        pre {
+            background-color: #262626;
+            color: #f4f4f4;
+            padding: 20px;
+            padding-top: 45px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #0f62fe;
+        }
+        
+        pre code {
+            background-color: transparent;
+            color: #f4f4f4;
+            padding: 0;
+        }
+        
+        .toc {
+            background-color: #f4f4f4;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 30px 0;
+        }
+        
+        .toc h2 {
+            margin-top: 0;
+        }
+        
+        .toc ol {
+            margin-left: 20px;
+        }
+        
+        .toc a {
+            color: #0f62fe;
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        
+        .badge-time {
+            background-color: #d2a106;
+            color: white;
+        }
+        
+        .badge-mode {
+            background-color: #0f62fe;
+            color: white;
+        }
+        
+        .note {
+            background-color: #e5f6ff;
+            border-left: 4px solid #0f62fe;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .warning {
+            background-color: #fff1f1;
+            border-left: 4px solid #da1e28;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        details {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            position: relative;
+        }
+        
+        details .copy-button {
+            top: 15px;
+            right: 15px;
+        }
+        
+        summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: #0f62fe;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        
+        summary:hover {
+            background-color: #e0e0e0;
+            border-radius: 3px;
+        }
+        
+        a {
+            color: #0f62fe;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        .folder-structure {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'IBM Plex Mono', "Courier New", Courier, monospace;
+            font-size: 0.9em;
+        }
+
+        .prompt-textarea {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #262626;
+            color: #f4f4f4;
+            padding: 20px;
+            padding-top: 45px;
+            border: none;
+            border-left: 4px solid #0f62fe;
+            border-radius: 5px;
+            font-family: 'IBM Plex Mono', "Courier New", Courier, monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+            resize: vertical;
+            overflow: hidden;
+        }
+
+        .prompt-textarea:focus {
+            outline: 2px solid #78a9ff;
+            outline-offset: -2px;
+        }
+
+        .prompt-hint {
+            position: absolute;
+            top: 14px;
+            left: 20px;
+            font-size: 0.75em;
+            color: #a8a8a8;
+            z-index: 10;
+            pointer-events: none;
+        }
+    </style>
+    <script>
+        function copyToClipboard(button, text) {
+            navigator.clipboard.writeText(text).then(function() {
+                const originalText = button.textContent;
+                button.textContent = 'コピー完了!';
+                button.classList.add('copied');
+                setTimeout(function() {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(function(err) {
+                console.error('コピーに失敗しました:', err);
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // プロンプトブロックにコピーボタンを追加（detailsの中にあるものとフォルダ構成は除外）
+            document.querySelectorAll('pre code').forEach(function(codeBlock) {
+                const pre = codeBlock.parentElement;
+                
+                // detailsの中にあるpreは既にdetailsレベルでボタンを追加するのでスキップ
+                if (pre.closest('details')) {
+                    return;
+                }
+                
+                // フォルダ構成のコードブロックはスキップ（ツリー構造を含むもの）
+                const codeText = codeBlock.textContent;
+                if (codeText.includes('├──') || codeText.includes('└──')) {
+                    return;
+                }
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = 'code-block-wrapper';
+                pre.parentNode.insertBefore(wrapper, pre);
+                wrapper.appendChild(pre);
+                
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.textContent = 'コピー';
+                button.onclick = function() {
+                    copyToClipboard(button, codeBlock.textContent);
+                };
+                wrapper.appendChild(button);
+            });
+            
+            // detailsブロックにコピーボタンを追加
+            document.querySelectorAll('details').forEach(function(details) {
+                const codeBlock = details.querySelector('pre code');
+                if (codeBlock) {
+                    const button = document.createElement('button');
+                    button.className = 'copy-button';
+                    button.textContent = 'コピー';
+                    button.onclick = function() {
+                        copyToClipboard(button, codeBlock.textContent);
+                    };
+                    details.appendChild(button);
+                }
+            });
+            
+            // プロンプト用テキストエリア（編集してコピー可能）にコピーボタンを追加し、内容に合わせて高さを自動調整
+            function resizePromptTextarea(textarea) {
+                textarea.style.height = 'auto';
+                textarea.style.height = textarea.scrollHeight + 'px';
+            }
+            document.querySelectorAll('.prompt-textarea').forEach(function(textarea) {
+                resizePromptTextarea(textarea);
+                textarea.addEventListener('input', function() {
+                    resizePromptTextarea(textarea);
+                });
+                const wrapper = textarea.closest('.code-block-wrapper');
+                if (wrapper && !wrapper.querySelector('.copy-button')) {
+                    const button = document.createElement('button');
+                    button.className = 'copy-button';
+                    button.textContent = 'コピー';
+                    button.onclick = function() {
+                        copyToClipboard(button, textarea.value);
+                    };
+                    wrapper.appendChild(button);
+                }
+            });
+            // Webフォント読み込み完了後に高さを再計算（フォント切り替えによるズレを防止）
+            window.addEventListener('load', function() {
+                document.querySelectorAll('.prompt-textarea').forEach(resizePromptTextarea);
+            });
+
+            // 浮動目次のアクティブ状態を更新
+            function updateActiveTocItem() {
+                const scrollPosition = window.scrollY + 100;
+                const sections = document.querySelectorAll('h2[id]');
+                
+                let currentSection = '';
+                sections.forEach(function(section) {
+                    const sectionTop = section.offsetTop;
+                    if (scrollPosition >= sectionTop) {
+                        currentSection = section.getAttribute('id');
+                    }
+                });
+                
+                document.querySelectorAll('.floating-toc a').forEach(function(link) {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === '#' + currentSection) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+            
+            // スクロール時にアクティブ項目を更新
+            window.addEventListener('scroll', updateActiveTocItem);
+            updateActiveTocItem();
+        });
+    </script>
+</head>
+<body>
+    <!-- 浮動目次 -->
+    <nav class="floating-toc">
+        <ul>
+            <li><a href="#前提条件">前提条件</a></li>
+            <li><a href="#今回のハンズオン概要">今回のハンズオン概要</a></li>
+            <li><a href="#仕様駆動開発の考え方">仕様駆動開発の考え方</a></li>
+            <li><a href="#ハンズオンの流れ">ハンズオンの流れ</a></li>
+            <li><a href="#シナリオ1">シナリオ① AGENTS.md 作成</a></li>
+            <li><a href="#シナリオ2">シナリオ② カスタム・ルール作成</a></li>
+            <li><a href="#シナリオ3">シナリオ③ カスタムモード作成 &amp; 機能追加</a></li>
+            <li><a href="#シナリオ4">シナリオ④ Skills 作成 &amp; コードレビュー</a></li>
+            <li><a href="#optional-bobshell">オプション: Bob Shell の概要</a></li>
+            <li><a href="#トラブルシューティング">トラブルシューティング</a></li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <h1>IBM Bob ハンズオン</h1>
+        
+        <div class="toc">
+            <h2>目次</h2>
+            <ol>
+                <li><a href="#前提条件">前提条件</a></li>
+                <li><a href="#今回のハンズオン概要">今回のハンズオン概要</a></li>
+                <li><a href="#仕様駆動開発の考え方">仕様駆動開発の考え方</a></li>
+                <li><a href="#ハンズオンの流れ">ハンズオンの流れ</a></li>
+                <li><a href="#シナリオ1">シナリオ① <code>AGENTS.md</code> 作成</a></li>
+                <li><a href="#シナリオ2">シナリオ② コーディング規約から、カスタム・ルール作成と適用</a></li>
+                <li><a href="#シナリオ3">シナリオ③ カスタムモード作成 &amp; 機能追加</a></li>
+                <li><a href="#シナリオ4">シナリオ④ Skills 作成 &amp; コードレビュー</a></li>
+                <li><a href="#optional-bobshell">オプション: Bob Shell の概要</a></li>
+                <li><a href="#トラブルシューティング">トラブルシューティング</a></li>
+            </ol>
+        </div>
+        
+        <h2 id="前提条件">前提条件</h2>
+        
+        <p>ハンズオン開始前に、以下の環境が準備されていることを確認してください。</p>
+        
+        <p>（※ 各項目の確認方法については、事前にお送りした<code>[お客様向け]Bobとpythonの事前インストール手順</code>をご確認ください。）</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>項目</th>
+                    <th>要件</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Python</td>
+                    <td>3.12 / 3.13 / 3.14 のいずれか（動作確認済み）</td>
+                </tr>
+                <tr>
+                    <td>IBM Bob</td>
+                    <td>インストール済み・起動可能</td>
+                </tr>
+                <tr>
+                    <td>Git</td>
+                    <td>インストール済み（<code>git --version</code> が表示されればOK）</td>
+                </tr>
+                <tr>
+                    <td>ネットワーク</td>
+                    <td><code>mcp.context7.com</code> への HTTPS 通信が可能（シナリオ③で使用）</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h2 id="今回のハンズオン概要">今回のハンズオン概要</h2>
+        
+        <p>このハンズオンでは、既存の在庫管理アプリを題材にして、IBM Bob の以下の機能を体験します。</p>
+        
+        <p>画像の進行イメージに合わせて、以下の4つのシナリオで進めます。</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>内容</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>仕様駆動開発の考え方</td>
+                </tr>
+                <tr>
+                    <td>シナリオ① <code>AGENTS.md</code> 作成</td>
+                </tr>
+                <tr>
+                    <td>シナリオ② コーディング規約から、カスタム・ルール作成と適用（<code>python-coding-standards</code> ルール）</td>
+                </tr>
+                <tr>
+                    <td>シナリオ③ MCP（context7）設定 &amp; カスタムモード（<code>🐼 実装モード</code>）作成 &amp; 機能追加</td>
+                </tr>
+                <tr>
+                    <td>シナリオ④ Skills 作成（<code>code-review</code> スキル）＆ コードレビュー実施</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h2 id="仕様駆動開発の考え方">仕様駆動開発の考え方</h2>
+        
+        <h3>対象アプリの説明</h3>
+        
+        <p>ルートディレクトリ（現在開いているフォルダ）にはシンプルな在庫管理アプリが含まれており、今回のハンズオンでは、このアプリをベースにさらに開発を進めていきます。</p>
+        
+        <h4>実装済みの主な機能</h4>
+        
+        <ul>
+            <li>ダッシュボード表示</li>
+            <li>商品一覧表示</li>
+            <li>商品追加</li>
+            <li>在庫の入庫・出庫</li>
+            <li>入出庫履歴表示</li>
+            <li>商品検索</li>
+        </ul>
+        
+        <h4>技術スタック</h4>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>項目</th>
+                    <th>内容</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>バックエンド</td>
+                    <td>Python</td>
+                </tr>
+                <tr>
+                    <td>Webフレームワーク</td>
+                    <td>Flask</td>
+                </tr>
+                <tr>
+                    <td>データ処理</td>
+                    <td>pandas</td>
+                </tr>
+                <tr>
+                    <td>データ保存</td>
+                    <td>CSV</td>
+                </tr>
+                <tr>
+                    <td>フロントエンド</td>
+                    <td>HTML / Bootstrap</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h4>フォルダ構成</h4>
+        
+        <pre><code>inventory-app/
+├── data
+│   ├── history.csv
+│   └── products.csv
+├── doc
+│   └── requirements-specification.md  #要件定義書
+├── static
+│   └── style.css
+├── templates
+│   ├── base.html
+│   ├── history.html
+│   ├── index.html
+│   └── products.html
+├── .bobignore　　　　　　　　　　　　　　　#Bobがアクセスしないファイルの指定（シナリオ②で使用）
+├── .gitignore
+├── app.py　　　　　　　　　　　　　　　　　#アプリのメインファイル
+├── data_manager.py
+├── python-coding-rules.txt　　　　　　　　#既存のコーディング規約（シナリオ②で使用）
+├── README.md
+└── requirements.txt</code></pre>
+        
+        <h3>対象アプリの起動と動作確認</h3>
+        
+        <p>以下の手順に従ってアプリを起動し、現時点のアプリの動作をご自由にお試しください。</p>
+
+        <div class="note">
+            <strong>実行場所:</strong> 以下のコマンドはすべて <code>inventory-app</code> ディレクトリ（<code>requirements.txt</code> があるフォルダ）で実行してください。
+            Bob IDE の統合ターミナル（メニューの ターミナル → 新しいターミナル）を使うと、このフォルダで開きます。
+        </div>
+
+        <h4>1. Python仮想環境の作成</h4>
+        
+        <pre><code>python -m venv venv</code></pre>
+
+        <div class="note">
+            <strong>Windowsの方へ:</strong> <code>python</code> と入力してMicrosoft Storeの画面が開いてしまう場合は、
+            <code>python</code> の代わりに <code>py</code> をお使いください（<code>py -m venv venv</code>）。
+        </div>
+
+        <h4>2. 仮想環境の有効化</h4>
+
+            <pre><code># Windows (コマンドプロンプト) の場合:
+venv\Scripts\activate
+# Windows (PowerShell) の場合:
+venv\Scripts\Activate.ps1
+# macOS/Linuxの場合:
+source venv/bin/activate</code></pre>
+
+        <div class="note">
+            <strong>PowerShellでエラーが出る場合:</strong>
+            <code>このシステムではスクリプトの実行が無効になっているため...</code> と表示されたら、
+            同じターミナルで次を実行してから、もう一度有効化してください（そのターミナルの間だけ有効な設定です）。
+            <pre><code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass</code></pre>
+            有効化に成功すると、プロンプトの先頭に <code>(venv)</code> と表示されます。
+        </div>
+        
+        <h4>3. Python依存パッケージのインストール</h4>
+        
+        <pre><code>pip install -r requirements.txt</code></pre>
+        
+        <h4>4. アプリケーションの起動</h4>
+        
+        <pre><code>python app.py</code></pre>
+        
+        <p>ブラウザで <code>http://localhost:5001</code> にアクセスしてください。</p>
+
+        <div class="note">
+            <strong>macOSの方へ:</strong> 初回起動時に「python へのネットワーク受信接続を許可しますか？」というダイアログが表示される場合があります。
+            <code>許可</code> を選択してください（拒否しても <code>localhost</code> でのアクセスは可能です）。
+        </div>
+
+        <h4>5. 正しく起動できたかの確認</h4>
+
+        <p>以下の2点が確認できれば、環境構築は成功です。</p>
+
+        <p><strong>① ターミナルに次のような表示が出て、入力待ちの状態になる</strong></p>
+
+        <pre><code> * Serving Flask app 'app'
+ * Debug mode: on
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.1.7:5001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 126-533-096</code></pre>
+
+        <p>プロンプトが返ってこないのが正常です。この状態のままブラウザを開いてください。</p>
+
+        <div class="note">
+            <strong>赤い <code>WARNING</code> は異常ではありません。</strong>
+            「これは開発用サーバーなので本番環境では使わないでください」という案内で、ハンズオンでは問題ありません。
+            <code>Debugger PIN</code> の数字や <code>192.168.x.x</code> のアドレスは、環境によって異なります。
+        </div>
+
+        <p><strong>② ブラウザのダッシュボードに、以下の数値が表示される</strong></p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>項目</th>
+                    <th>表示される値</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>総商品数</td>
+                    <td>11</td>
+                </tr>
+                <tr>
+                    <td>総在庫数</td>
+                    <td>410</td>
+                </tr>
+                <tr>
+                    <td>総在庫額</td>
+                    <td>¥3,852,500</td>
+                </tr>
+                <tr>
+                    <td>カテゴリ数</td>
+                    <td>5</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>あわせて、画面上部のメニューから <strong>商品管理</strong>（11件の商品一覧）と <strong>履歴</strong>（14件の入出庫履歴）のページが開けることをご確認ください。
+        3つの画面が表示できれば、以降のシナリオに進む準備が整っています。</p>
+
+        <div class="note">
+            <strong>数値が違う場合:</strong> すでにアプリを操作して商品を追加・入出庫された場合は、上記と異なる数値になります。異常ではありませんので、そのまま進めていただいて問題ありません。
+        </div>
+        
+        <h4>※ アプリケーションのシャットダウン</h4>
+        
+        <p>ターミナル上で、以下のキー操作を行います。</p>
+        
+        <ul>
+            <li>Windows:Ctrl + C</li>
+            <li>macOS:Control + C</li>
+        </ul>
+        
+        <h3>要件定義書の確認</h3>
+        
+        <p>先ほどご確認いただいたアプリは、事前に以下の要件定義書を作成のうえ開発したものです。</p>
+        
+        <p><a href="./inventory-app/doc/requirements-specification.md">requirements-specification.md</a></p>
+        
+        <h2 id="ハンズオンの流れ">ハンズオンの流れ</h2>
+        
+        <p>今回のハンズオンでは、既存アプリに対して Bob の設定や拡張を段階的に追加していきます。</p>
+        
+        <ol>
+            <li>既存リポジトリから <code>AGENTS.md</code> を生成する</li>
+            <li>コーディング規約に基づき、Rules を作成し、既存コードに適用する</li>
+            <li>MCP（context7）を設定し、カスタムモードを作成してアプリに機能を追加する体験を行う</li>
+            <li>コードレビュー用 Skill を作成し、そのまま Rules に基づくコードレビューを実施する</li>
+        </ol>
+        
+        <h2 id="シナリオ1">シナリオ① <code>AGENTS.md</code> 作成</h2>
+        
+        <p>
+            <span class="badge badge-time">想定時間: 10分</span>
+            <span class="badge badge-mode">Mode: 💻 Code</span>
+        </p>
+        
+        <h3>目的</h3>
+        
+        <ul>
+            <li>既存リポジトリを Bob に理解させる</li>
+            <li><code>/init</code> で <code>AGENTS.md</code> を自動生成し、プロジェクト理解の起点を作成する</li>
+            <li>プロジェクト全体とモード別のコンテキストを一度に設定する</li>
+        </ul>
+        
+        <h3>実施手順</h3>
+        
+        <ol>
+            <li>Bob IDE で <code>inventory-app</code> ディレクトリをワークスペースとして開きます。</li>
+            <li>Agentic Chat を <strong>Code mode</strong> に切り替えます。</li>
+            <li>チャットに次のコマンドだけを入力して実行します。</li>
+        </ol>
+        
+        <div class="code-block-wrapper">
+            <span class="prompt-hint">✏️ 編集してコピーできます</span>
+            <textarea class="prompt-textarea" spellcheck="false" rows="1">/init</textarea>
+        </div>
+        
+        <ol start="4">
+            <li>ファイルの読み取りと書き込みの許可を求められた場合は許可します。</li>
+        </ol>
+        
+        <h3>Bobの動作</h3>
+        
+        <p><code>/init</code> はプロジェクト内の関連ファイルを読み取り、プロジェクトルートに <code>AGENTS.md</code> を生成します。また、<code>.bob</code> 配下に各 Bob モードで使用するモード別の <code>AGENTS.md</code> を生成します。</p>
+        
+        <ul>
+            <li><code>AGENTS.md</code>: Bob がプロジェクトを理解するためのコンテキスト</li>
+            <li><code>.bob/rules-code/AGENTS-code.md</code>: Code mode 用のコンテキスト</li>
+            <li><code>.bob/rules-plan/AGENTS-plan.md</code>: Plan mode 用のコンテキスト</li>
+            <li><code>.bob/rules-ask/AGENTS-ask.md</code>: Ask mode 用のコンテキスト</li>
+            <li><code>.bob/rules-advanced/AGENTS-advanced.md</code>: Advanced mode 用のコンテキスト</li>
+        </ul>
+        
+        <h3>学習ポイント</h3>
+        
+        <ul>
+            <li><code>/init</code> 一回で、Bob が既存プロジェクトの構成や規約を把握できることを体験する</li>
+            <li>生成された <code>AGENTS.md</code> が、新しい会話でもプロジェクトコンテキストとして利用されることを確認する</li>
+        </ul>
+        
+        <h3>補足</h3>
+        
+        <ul>
+            <li>生成されたファイルの内容を必ず確認してください</li>
+            <li><code>AGENTS.md</code> はプロジェクトの一部としてバージョン管理してください</li>
+            <li>大きな変更後は <code>/init</code> を再実行してコンテキストを更新できます</li>
+        </ul>
+        
+        <h2 id="シナリオ2">シナリオ② コーディング規約から、カスタム・ルール作成と適用</h2>
+        
+        <p>
+            <span class="badge badge-time">想定時間: 10分</span>
+            <span class="badge badge-mode">Mode: 🤖 Agent</span>
+        </p>
+        
+        <h3>目的</h3>
+        
+        <ul>
+            <li>既存のコーディング規約(<code>python-coding-rules.txt</code>)を <code>.bob/rules/</code>配下の Rules に変換する</li>
+            <li>Bob が参照する開発ルールを明文化する</li>
+            <li>既存コードを Rules に従って修正・統一し、Rules の効果を体験する</li>
+        </ul>
+        
+        <h3>実施手順とプロンプト</h3>
+        
+        <h4>STEP1: 既存のコーディング規約の確認</h4>
+        
+        <ul>
+            <li>ルートディレクトリ（現在開いているフォルダ）配下に、<code>python-coding-rules.txt</code> ファイルが存在することを確認してください。その内容は、PEP 8（Pythonの標準的なコーディング規約）からの一部抜粋です。社内に既に存在するプロジェクト開発ルールや規約の一例として、イメージを持っていただければ幸いです。</li>
+            <li>同様に、ルートディレクトリ配下にある <code>.bobignore</code> ファイルを確認して、1行目の先頭に<code>#</code>を追加してください。(<code>.bobignore</code>ファイルは、Bob がアクセス可能なファイルを制御するためのファイルです。)</li>
+        </ul>
+        
+        <h4>STEP2: 既存のコーディング規約からRulesドキュメントを生成</h4>
+        
+        <p><strong>実施プロンプト</strong></p>
+        
+        <div class="code-block-wrapper">
+            <span class="prompt-hint">✏️ 編集してコピーできます</span>
+            <textarea class="prompt-textarea" spellcheck="false" rows="2">@/python-coding-rules.txt を参考に、python用のコーディング規約を整理して、.bob/rules/ 配下にRulesドキュメントを生成してください。</textarea>
+        </div>
+        
+        <p><strong>Bobの動作イメージ</strong></p>
+        
+        <ul>
+            <li><code>python-coding-rules.txt</code> や <code>AGENTS.md</code> を参照</li>
+            <li>Python向けのコーディング規約を整理する</li>
+            <li><code>.bob/rules/</code> 配下にルールファイルを作成</li>
+        </ul>
+        
+        <h4>STEP3: 既存コードを Rules に従って修正・統一</h4>
+        
+        <p><strong>実施プロンプト</strong></p>
+        
+        <div class="code-block-wrapper">
+            <span class="prompt-hint">✏️ 編集してコピーできます</span>
+            <textarea class="prompt-textarea" spellcheck="false" rows="1">ルールに従って、@/app.py と @/data_manager.py ファイルを修正してください。</textarea>
+        </div>
+        
+        <p><strong>Bobの動作イメージ</strong></p>
+        
+        <ul>
+            <li><code>app.py</code>と<code>data_manager.py</code>ファイルを修正</li>
+            <li>読みにくいコードをルールに従って再構成し、読みやすくする</li>
+        </ul>
+        
+        <h3>学習ポイント</h3>
+        
+        <ul>
+            <li>Rules によって Bob の実装方針を安定させられることを理解する</li>
+            <li>既存の社内開発規定をそのまま利用できることを体験する</li>
+        </ul>
+        
+        <h3>補足</h3>
+        
+        <ul>
+            <li>生成された Rules ドキュメントの内容は必ず確認してください</li>
+            <li>カスタムルールは1ファイルでも複数ファイルでも構いません、「どの粒度で分けるか」も考えてもらうと理解が深まります</li>
+            <li>早めに完了した方は、HTML向けのRulesドキュメントの生成と適用も試してみてください</li>
+            <li>先ほど生成した <code>AGENTS.md</code> にコーディング規約が含まれている場合は、ルールと矛盾しないように修正するか、該当箇所を削除してください。（コーディング規約と <code>AGENTS.md</code> は分離して管理することを推奨します。）</li>
+        </ul>
+        
+        <h2 id="シナリオ3">シナリオ③ カスタムモード作成 &amp; 機能追加</h2>
+        
+        <p>
+            <span class="badge badge-time">想定時間: 20分</span>
+            <span class="badge badge-mode">Mode: 🤖 Agent → カスタムモード（🐼 実装モード）</span>
+        </p>
+        
+        <h3>目的</h3>
+        
+        <ul>
+            <li>MCP（context7）を設定し、外部ドキュメント参照の仕組みを理解する</li>
+            <li><code>/create-mode</code> を使ってカスタムモードを作成する方法を体験する</li>
+            <li>Flask・pandas の公式ドキュメントを参照しながら機能追加を体験する</li>
+        </ul>
+        
+        <h3>実施手順とプロンプト</h3>
+        
+        <h4>STEP1: MCP（context7）の設定</h4>
+        
+        <p>以下の内容で <code>.bob/mcp.json</code> を作成してください。</p>
+        
+        <pre><code>{
+  "mcpServers": {
+    "context7": {
+      "type": "streamable-http",
+      "url": "https://mcp.context7.com/mcp"
+    }
+  }
+}</code></pre>
+        
+        <p>作成後、以下のプロンプトで接続を確認してください。</p>
+        
+        <div class="code-block-wrapper">
+            <span class="prompt-hint">✏️ 編集してコピーできます</span>
+            <textarea class="prompt-textarea" spellcheck="false" rows="1">context7で使えるツールを確認してください。</textarea>
+        </div>
+        
+        <p><code>resolve-library-id</code> と <code>get-library-docs</code> が表示されれば設定完了です。</p>
+        
+        <div class="note">
+            <strong>補足:</strong> context7 は外部の公式ドキュメントを Bob がリアルタイムで参照できるようにする MCP サーバーです。Flask・pandas など主要ライブラリのドキュメントに対応しています。
+        </div>
+        
+        <h4>STEP2: カスタムモードの作成</h4>
+        
+        <p><strong>実施プロンプト</strong></p>
+        
+        <div class="code-block-wrapper">
+            <span class="prompt-hint">✏️ 編集してコピーできます</span>
+            <textarea class="prompt-textarea" spellcheck="false" rows="3">/create-mode
+
+context7でFlask・pandasの公式ドキュメントを参照しながら実装するための、在庫管理アプリ開発専用カスタムモードを作成してください。</textarea>
+        </div>
+        
+        <p><strong>Bobの動作イメージ</strong></p>
+        
+        <ul>
+            <li><code>/create-mode</code> で <code>.bob/custom_modes.yaml</code> にモード定義を追加</li>
+            <li>設定済みの context7 MCP をモードに紐付け</li>
+            <li>モード固有のルールファイルを作成</li>
+        </ul>
+        
+        <p>完了後、Bob のモード切り替えボタンを押し、新しいカスタムモードが表示されることを確認してください。</p>
+        
+        <div class="note">
+            <strong>バックアップ:</strong> Bob がカスタムモードをうまく作れなかった場合は、以下を <code>.bob/custom_modes.yaml</code> として保存してください。
+        </div>
+        
+        <details>
+            <summary>custom_modes.yaml（バックアップ用）</summary>
+            <pre><code>customModes:
+  - slug: impl-mode
+    name: 🐼 実装モード
+    description: Flask・pandas公式ドキュメント参照開発モード
+    roleDefinition: |-
+      あなたは在庫管理アプリの実装担当エンジニアです。
+      Flask・pandas の公式ドキュメントを context7 で参照しながら、
+      `.bob/rules/` のコーディング規約に従って機能追加・バグ修正を行います。
+      実装前に必ず context7 で該当ライブラリのドキュメントを確認し、
+      最新の API・ベストプラクティスに基づいた実装を行ってください。
+    whenToUse: |-
+      在庫管理アプリへの機能追加・バグ修正を、Flask・pandas の公式ドキュメントを
+      参照しながら正確に実装したいときに使用します。
+    groups:
+      - read
+      - edit
+      - command
+      - mcp
+    customInstructions: |-
+      実装前に必ず context7 の resolve-library-id → get-library-docs の順で
+      該当ライブラリのドキュメントを取得し、API 仕様を確認してから実装すること。</code></pre>
+        </details>
+        
+        <h4>STEP3: 機能追加の実装</h4>
+        
+        <p><strong>実施プロンプト</strong></p>
+        
+        <p>【※ 作成したカスタムモードに切り替えて】</p>
+        
+        <div class="code-block-wrapper">
+            <span class="prompt-hint">✏️ 編集してコピーできます</span>
+            <textarea class="prompt-textarea" spellcheck="false" rows="2">在庫のカテゴリ別フィルタリングができるような機能を実装したい。pandas公式ドキュメントを確認しながら実装してください。動作確認はする必要はありません。</textarea>
+        </div>
+        
+        <p><strong>Bobの動作イメージ</strong></p>
+        
+        <ul>
+            <li>context7 で pandas の公式ドキュメントを参照しながら実装方針を決定</li>
+            <li>タスクを自動分解（要件整理 → 実装）して進める</li>
+            <li>並列ツール呼び出しで複数ファイルを同時処理し、高速に完了</li>
+        </ul>
+        
+        <h3>学習ポイント</h3>
+        
+        <ul>
+            <li>MCP を使って Bob が外部ドキュメントをリアルタイム参照できることを理解する</li>
+            <li><code>/create-mode</code> でカスタムモードを素早く作れることを体験する</li>
+            <li>カスタムモード + MCP の連携により、特定技術スタックに特化した開発体験ができることを確認する</li>
+        </ul>
+        
+        <h3>補足</h3>
+        
+        <ul>
+            <li>生成された <code>custom_modes.yaml</code> の内容は必ず確認してください</li>
+            <li>早めに完了した場合は、以下の例を参考に、追加で機能をもう一つ実装しても構いません。
+                <ul>
+                    <li>追加できる機能の例:
+                        <ul>
+                            <li>在庫アラート機能</li>
+                            <li>商品削除機能</li>
+                            <li>グラフ表示機能</li>
+                            <li>ユーザー認証機能</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        
+        <h2 id="シナリオ4">シナリオ④ Skills 作成 &amp; コードレビュー</h2>
+        
+        <p>
+            <span class="badge badge-time">想定時間: 20分</span>
+            <span class="badge badge-mode">Mode: 🤖 Agent</span>
+        </p>
+        
+        <h3>目的</h3>
+        
+        <ul>
+            <li><code>/create-skill</code> を使って、コードレビュー用の Skill を作成する</li>
+            <li>作成した <code>/review</code> スキルを即座に呼び出し、<code>.bob/rules/</code> の開発標準に基づいたコードレビューを体験する</li>
+            <li>一度作ったスキルが繰り返し使える資産になることを理解する</li>
+        </ul>
+        
+        <h3>実施手順とプロンプト</h3>
+        
+        <h4>STEP1: コードレビュー用 Skill の作成</h4>
+        
+        <p><strong>実施プロンプト</strong></p>
+        
+        <div class="code-block-wrapper">
+            <span class="prompt-hint">✏️ 編集してコピーできます</span>
+            <textarea class="prompt-textarea" spellcheck="false" rows="5">/create-skill
+
+スキル名は review で、.bob/rules/ の開発標準に基づくレビューに加えて、セキュリティ観点でも作業ディレクトリのコード全体をレビューするスキルを作成してください。
+チェック対象には、ハードコードされた認証情報・APIキー、SQLインジェクション、XSS、入力値検証の欠如、安全でない暗号化処理、詳細すぎるエラー露出などを含めてください。
+検出した問題は重要度（Critical / High / Medium / Low）で分類し、該当ファイル・行番号・リスク内容・修正方法を示してください。</textarea>
+        </div>
+
+        <p><strong>Bobの動作イメージ</strong></p>
+
+        <ul>
+            <li><code>/create-skill</code> で <code>.bob/rules/</code> の開発標準とセキュリティ観点を参照するレビュースキルを <code>.bob/skills/review/SKILL.md</code> に作成</li>
+            <li>規約違反・可読性に加え、認証情報の露出やインジェクション系脆弱性などのセキュリティ観点も含めたチェック項目と、重要度別（Critical / High / Medium / Low）の報告フォーマットをスキル内に定義する</li>
+        </ul>
+        
+        <div class="warning">
+            <strong>⚠️ Note:</strong> 作成したスキルは、<strong>新しいセッション（タスク）を開始しないと <code>/review</code> として呼び出せません</strong>。スキル作成が完了したら、一度新しいタスクを開始してから次の <code>/review</code> に進んでください。
+        </div>
+        
+        <h4>STEP2: コードレビューの実施</h4>
+        
+        <p>新しいタスクを開始したら、たった1行打つだけで開発標準に沿った本格的なレビューが走ります。</p>
+        
+        <p><strong>実施プロンプト</strong></p>
+        
+        <div class="code-block-wrapper">
+            <span class="prompt-hint">✏️ 編集してコピーできます</span>
+            <textarea class="prompt-textarea" spellcheck="false" rows="1">/review</textarea>
+        </div>
+        
+        <p><strong>Bobの動作イメージ</strong></p>
+        
+        <ul>
+            <li>作成した <code>/review</code> スキルが <code>.bob/rules/</code> の開発標準を読み込む</li>
+            <li>作業ディレクトリ全体のコードをレビュー</li>
+            <li>規約違反・改善点を整理して報告</li>
+        </ul>
+        
+        <h4>STEP3: 指摘内容の修正（オプション）</h4>
+        
+        <p>レビュー結果を受けて、以下のように Bob に修正を依頼できます。</p>
+        
+        <div class="code-block-wrapper">
+            <span class="prompt-hint">✏️ 編集してコピーできます</span>
+            <textarea class="prompt-textarea" spellcheck="false" rows="1">上記の指摘のうち、重要度「高」の項目を修正してください。</textarea>
+        </div>
+        
+        <h3>学習ポイント</h3>
+        
+        <ul>
+            <li>rules に書いた開発標準をそのままレビュー基準として活用できる — ルールを育てれば、レビューの質も上がる</li>
+            <li>一度スキルを作れば、次回以降は <code>/review</code> の1コマンドで呼び出せる。プロンプトを毎回書く必要がない</li>
+            <li>チームで共有すれば、誰でも同じ基準でレビューを実行できる</li>
+        </ul>
+        
+        <h3>補足</h3>
+        
+        <ul>
+            <li>生成された <code>SKILL.md</code> の内容は必ず確認してください。レビュー観点やフォーマットに不足があれば、その場で追記を依頼して構いません</li>
+            <li>シナリオ②で作成した Rules がレビュー基準になるため、Rules の内容を事前に確認しておくと理解が深まります</li>
+            <li>Bob が体系的に従えるよう、スキルの中に明確で実行可能なステップとして指示を構造化することが可能です。ハンズオン終了後に配布するリファレンス資料を参照してください。</li>
+        </ul>
+        
+        <h2 id="optional-bobshell">オプション: Bob Shell ハンズオン</h2>
+        
+        <p>
+            <span class="badge badge-time">想定時間: 20分</span>
+        </p>
+        
+        <h3>目的</h3>
+        
+        <ul>
+            <li>Bob Shell をインストールして起動する</li>
+            <li>インタラクティブセッションで Bob Shell に質問する</li>
+            <li>ワンライナーで Bob Shell を実行する</li>
+        </ul>
+        
+        <h3>STEP1: Bob Shell のインストール</h3>
+        
+        <p>Bob IDE のコマンドパレットを開き、Bob Shell をセットアップします。</p>
+        
+        <ol>
+            <li>macOS は <code>Cmd + Shift + P</code>、Windows/Linux は <code>Ctrl + Shift + P</code> を押します。</li>
+            <li>コマンドパレットで <code>run bobshell</code> を検索して実行します。</li>
+            <li>表示された案内に従って Bob Shell をインストールします。</li>
+        </ol>
+        
+        <div class="note">
+            <strong>前提:</strong> Bob Shell のセットアップには Bob IDE が必要です。初回起動時にライセンス確認やサインインを求められる場合があります。
+        </div>
+        
+        <h3>STEP2: Bob Shell の起動</h3>
+        
+        <p>ターミナルを開き、プロジェクトディレクトリで次のコマンドを実行します。</p>
+        
+        <pre><code>bob</code></pre>
+        
+        <p>Bob Shell が起動したら、インタラクティブセッションで次の質問を入力します。</p>
+        
+        <div class="code-block-wrapper">
+            <span class="prompt-hint">✏️ 編集してコピーできます</span>
+            <textarea class="prompt-textarea" spellcheck="false" rows="1">Hello world と表示してください。</textarea>
+        </div>
+        
+        <h3>STEP3: API key の取得</h3>
+        
+        <p>非インタラクティブセッションでBob Shellを実行する場合（ブラウザを開けない環境やCI/CDなど）は、API key認証を使用します。</p>
+        
+        <ol>
+            <li><a href="https://bob.ibm.com">Bob Web</a> にサインインします。</li>
+            <li>サブスクリプション・インスタンスを開き、API keyの管理画面に移動します。</li>
+            <li>API keyを作成し、キーの種類は <strong>Inference</strong> を選択します。</li>
+            <li>表示されたAPI keyを安全な場所にコピーします。作成後はキーの値を再表示できないため、ソースコードやログに記録しないでください。</li>
+        </ol>
+        
+        <h3>STEP4: 非インタラクティブセッションで Bob Shell を実行</h3>
+        
+        <p>取得したAPI keyを環境変数に設定します。以下はmacOS/Linuxの例です。</p>
+        
+        <pre><code>export BOBSHELL_API_KEY="取得したAPI key"</code></pre>
+        
+        <p>Windows PowerShellの場合は、次のように設定します。</p>
+        
+        <pre><code>$env:BOBSHELL_API_KEY="取得したAPI key"</code></pre>
+        
+        <p>環境変数に設定したAPI keyを使い、非インタラクティブセッションでシナリオ④で作成した <code>/review</code> スキルを実行します。あらかじめシナリオ④で <code>/review</code> スキルを作成しておいてください。</p>
+
+        <pre><code>bob --prompt "/review"</code></pre>
+
+        <p>このコマンドはインタラクティブセッションを開始せず、1回のプロンプトを処理して終了します。<code>.bob/rules/</code> の開発標準とセキュリティ観点に基づくコードレビューが、ブラウザを開かずに実行されます。CI/CDのパイプラインに組み込めば、コミットやプルリクエストのたびに自動でレビューを走らせる、といった運用も可能です。CI/CDでは、<code>BOBSHELL_API_KEY</code>をCI/CDのシークレットとして登録し、ログに出力しないでください。</p>
+        
+        <h2 id="トラブルシューティング">トラブルシューティング</h2>
+        
+        <h3>期待した出力が得られない場合</h3>
+        
+        <h4>1. Modeが合っているか確認する</h4>
+        
+        <ul>
+            <li>シナリオごとに指定された Mode を確認してください</li>
+            <li>Plan で実装、Agent で設計をさせると意図がずれやすくなります</li>
+        </ul>
+        
+        <h4>2. 指示を少し具体化する</h4>
+        
+        <ul>
+            <li>ファイル名を明示する</li>
+            <li>どこに作るかを明示する</li>
+            <li>例: <code>/create-skill</code> を使ってスキルを作成してください</li>
+        </ul>
+        
+        <h4>3. タスクを分割する</h4>
+        
+        <ul>
+            <li>一度に多くを頼みすぎると出力がぶれます</li>
+            <li>タスクは小さく分割し、こまめに依頼してください</li>
+        </ul>
+        
+        <h4>4. 生成物を確認する</h4>
+        
+        <ul>
+            <li><code>.bob/custom_modes.yaml</code></li>
+            <li><code>.bob/skills/review/SKILL.md</code></li>
+        </ul>
+        
+        <p>の2点が意図通りか確認してください。</p>
+        
+        <h3>アプリが起動しない場合</h3>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>症状</th>
+                    <th>対処法</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>pip install -r requirements.txt</code> が失敗する</td>
+                    <td>仮想環境が有効か（プロンプトに <code>(venv)</code> があるか）と、<code>python --version</code> が 3.12 / 3.13 / 3.14 のいずれかであることを確認する</td>
+                </tr>
+                <tr>
+                    <td>pandas のインストールで大量のコンパイルログが出て失敗する<br>（<code>Building wheel for pandas</code> / <code>error: metadata-generation-failed</code>）</td>
+                    <td>Python のバージョンが対応外です。<code>python --version</code> を確認し、3.12 / 3.13 / 3.14 のいずれかで仮想環境を作り直してください</td>
+                </tr>
+                <tr>
+                    <td>PowerShellで <code>venv\Scripts\activate</code> が実行できない</td>
+                    <td><code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass</code> を実行してから <code>venv\Scripts\Activate.ps1</code> を実行する</td>
+                </tr>
+                <tr>
+                    <td><code>python app.py</code> でエラーが出る</td>
+                    <td>エラーメッセージをそのまま Bob に渡して確認する</td>
+                </tr>
+                <tr>
+                    <td><code>Address already in use</code> と表示される</td>
+                    <td>5001番ポートを他のアプリが使用しています。起動済みのアプリを Ctrl + C で停止するか、Bob に「ポート番号を5002に変更して」と依頼する</td>
+                </tr>
+                <tr>
+                    <td>ブラウザで画面が開かない</td>
+                    <td><code>http://localhost:5001</code> にアクセスできるか確認する</td>
+                </tr>
+                <tr>
+                    <td>シナリオ③で context7 のツールが表示されない</td>
+                    <td>社内プロキシ等で <code>mcp.context7.com</code> への通信が遮断されている可能性があります。ネットワーク管理者にご確認ください</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h3>Bob がコマンドを実行した後、しばらく待っても反応がない場合</h3>
+        
+        <ul>
+            <li>今回のタスク画面を一旦閉じ、Bob のアイコンがある画面に戻ってください。</li>
+            <li><code>最近のタスク</code>の下に、先ほどのタスクカードをクリックし、<code>タスクを再開</code>をボタンを押してください。</li>
+        </ul>
+        
+    </div>
+</body>
+</html>

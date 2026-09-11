@@ -1,0 +1,11 @@
+# Python 仮想環境
+venv/
+.venv/
+
+# Python キャッシュ
+__pycache__/
+*.py[cod]
+
+# OS
+.DS_Store
+Thumbs.db

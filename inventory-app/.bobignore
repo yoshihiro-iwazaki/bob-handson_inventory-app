@@ -1,0 +1,7 @@
+python-coding-rules.txt
+
+# Bob のコンテキストに含めないファイル
+venv/
+.venv/
+__pycache__/
+.DS_Store

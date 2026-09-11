@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}履歴 - 在庫管理システム{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="bi bi-clock-history"></i> 
+            {% if product_name %}
+            {{ product_name }} の履歴
+            {% else %}
+            入出庫履歴
+            {% endif %}
+        </h1>
+    </div>
+</div>
+
+<!-- 戻るボタン -->
+{% if product_name %}
+<div class="row mb-3">
+    <div class="col-12">
+        <a href="{{ url_for('history') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> すべての履歴に戻る
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- 履歴テーブル -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">履歴一覧 ({{ history|length }}件)</h5>
+            </div>
+            <div class="card-body">
+                {% if history %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>日時</th>
+                                <th>商品名</th>
+                                <th>操作</th>
+                                <th>数量変化</th>
+                                <th>在庫数</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in history %}
+                            <tr>
+                                <td>{{ item.id }}</td>
+                                <td>{{ item.timestamp }}</td>
+                                <td>
+                                    <a href="{{ url_for('history', product_id=item.product_id) }}" 
+                                       class="text-decoration-none">
+                                        {{ item.product_name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if item.action == '入庫' else 'danger' }}">
+                                        <i class="bi bi-{{ 'arrow-down-circle' if item.action == '入庫' else 'arrow-up-circle' }}"></i>
+                                        {{ item.action }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="text-{{ 'success' if item.quantity_change > 0 else 'danger' }} fw-bold">
+                                        {{ '+' if item.quantity_change > 0 else '' }}{{ item.quantity_change }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 'danger' if item.quantity_after < 10 else 'secondary' }}">
+                                        {{ item.quantity_after }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center mb-0">履歴がありません</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 統計情報 -->
+{% if history %}
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-bar-chart"></i> 統計情報</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="text-center p-3 border rounded">
+                            <h6 class="text-muted">入庫回数</h6>
+                            <h3 class="text-success">
+                                {{ history | selectattr('action', 'equalto', '入庫') | list | length }}
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center p-3 border rounded">
+                            <h6 class="text-muted">出庫回数</h6>
+                            <h3 class="text-danger">
+                                {{ history | selectattr('action', 'equalto', '出庫') | list | length }}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> ヒント</h5>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>商品名をクリックすると、その商品の履歴のみを表示できます</li>
+                    <li>在庫数が10未満の場合は赤色で表示されます</li>
+                    <li>入庫は緑色、出庫は赤色のバッジで表示されます</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
