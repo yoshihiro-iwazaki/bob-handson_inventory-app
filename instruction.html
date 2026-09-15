@@ -846,7 +846,7 @@ Press CTRL+C to quit
         <h2 id="シナリオ2">シナリオ② コーディング規約から、カスタム・ルール作成と適用</h2>
         
         <p>
-            <span class="badge badge-time">想定時間: 10分</span>
+            <span class="badge badge-time">想定時間: 20分</span>
             <span class="badge badge-mode">Mode: 🤖 Agent</span>
         </p>
         
@@ -1155,16 +1155,54 @@ context7でFlask・pandasの公式ドキュメントを参照しながら実装�
         
         <h3>STEP1: Bob Shell のインストール</h3>
         
-        <p>Bob IDE のコマンドパレットを開き、Bob Shell をセットアップします。</p>
-        
-        <ol>
-            <li>macOS は <code>Cmd + Shift + P</code>、Windows/Linux は <code>Ctrl + Shift + P</code> を押します。</li>
-            <li>コマンドパレットで <code>run bobshell</code> を検索して実行します。</li>
-            <li>表示された案内に従って Bob Shell をインストールします。</li>
-        </ol>
+        <p>Bob Shell は Node.js 上で動作するCLIツールです。Bob IDE とは独立して、公式のインストールスクリプトでセットアップします。</p>
         
         <div class="note">
-            <strong>前提:</strong> Bob Shell のセットアップには Bob IDE が必要です。初回起動時にライセンス確認やサインインを求められる場合があります。
+            <strong>前提: Node.js が必要です。</strong>
+            公式の要件は <strong>Node.js 24 以降</strong>です。
+            ターミナルで <code>node -v</code> を実行して確認し、コマンドが見つからない場合やバージョンが古い場合は
+            <a href="https://nodejs.org/" target="_blank" rel="noopener">nodejs.org</a> から LTS 版をインストールしてください。
+        </div>
+        
+        <h4>1. インストールスクリプトの実行</h4>
+        
+        <p>ターミナル（Windowsの場合は PowerShell）を開き、OSに合わせて次のコマンドを実行します。</p>
+        
+        <pre><code># macOS/Linux の場合:
+curl -fsSL https://bob.ibm.com/download/bobshell.sh | bash
+# Windows (PowerShell) の場合:
+powershell -c "irm -Uri https://bob.ibm.com/download/bobshell.ps1 | iex"</code></pre>
+        
+        <p>
+            スクリプトは Node.js のバージョンを確認したあと、パッケージの整合性（SHA256）を検証してグローバルインストールを行います。
+            npm / pnpm / yarn が複数入っている場合は、どれを使うか番号で選択を求められるので <code>npm</code> を選んでください（npm しか無い環境では自動的に npm が選ばれます）。
+        </p>
+        
+        <div class="note">
+            <strong>選択を省略したい場合:</strong> パッケージマネージャーを引数で指定できます。
+            <pre><code># macOS/Linux の場合:
+curl -fsSL https://bob.ibm.com/download/bobshell.sh | bash -s -- --pm npm
+# Windows (PowerShell) の場合:
+powershell -c "& ([scriptblock]::Create((irm -Uri https://bob.ibm.com/download/bobshell.ps1))) -pm npm"</code></pre>
+        </div>
+        
+        <h4>2. インストールの確認</h4>
+        
+        <p>インストール後は<strong>新しいターミナルを開き直してから</strong>（PATHを反映させるため）、次のコマンドでバージョンを確認します。</p>
+        
+        <pre><code>bob --version</code></pre>
+        
+        <div class="note">
+            <strong>うまくいかない場合:</strong>
+            <ul>
+                <li><code>command not found: bob</code> / <code>bob は認識されません</code> と出る場合は、ターミナルを開き直してください。それでも解決しない場合は、npm のグローバルインストール先（<code>npm prefix -g</code> で表示されるパスの <code>bin</code> 配下。Windows はそのパス直下）がPATHに含まれているか確認してください。</li>
+                <li>PowerShell で <code>このシステムではスクリプトの実行が無効になっているため...</code> と表示される場合は、このページ前半の「PowerShellでエラーが出る場合」と同じく、同じターミナルで <code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass</code> を実行してから再度お試しください。</li>
+            </ul>
+        </div>
+        
+        <div class="note">
+            <strong>補足:</strong> Bob IDE の設定によっては、Bob IDE 側から Bob Shell が自動インストールされる場合があります。
+            その場合もインストールされる中身は上記スクリプトと同じものです。すでに <code>bob --version</code> が通る場合は、このSTEPは飛ばして構いません。
         </div>
         
         <h3>STEP2: Bob Shell の起動</h3>
@@ -1172,6 +1210,12 @@ context7でFlask・pandasの公式ドキュメントを参照しながら実装�
         <p>ターミナルを開き、プロジェクトディレクトリで次のコマンドを実行します。</p>
         
         <pre><code>bob</code></pre>
+        
+        <p>引数なしの <code>bob</code> はインタラクティブセッション（ターミナルUI）を起動します。<code>bob chat</code> と明示しても同じです。</p>
+        
+        <div class="note">
+            <strong>初回起動時:</strong> IBMのライセンス条項への同意と、ブラウザでのサインイン（IBMid / SSO）を求められる場合があります。画面の案内に従って進めてください。
+        </div>
         
         <p>Bob Shell が起動したら、インタラクティブセッションで次の質問を入力します。</p>
         
@@ -1195,17 +1239,17 @@ context7でFlask・pandasの公式ドキュメントを参照しながら実装�
         
         <p>取得したAPI keyを環境変数に設定します。以下はmacOS/Linuxの例です。</p>
         
-        <pre><code>export BOBSHELL_API_KEY="取得したAPI key"</code></pre>
+        <pre><code>export BOB_API_KEY="取得したAPI key"</code></pre>
         
         <p>Windows PowerShellの場合は、次のように設定します。</p>
         
-        <pre><code>$env:BOBSHELL_API_KEY="取得したAPI key"</code></pre>
+        <pre><code>$env:BOB_API_KEY="取得したAPI key"</code></pre>
         
         <p>環境変数に設定したAPI keyを使い、非インタラクティブセッションでシナリオ④で作成した <code>/review</code> スキルを実行します。あらかじめシナリオ④で <code>/review</code> スキルを作成しておいてください。</p>
 
         <pre><code>bob --prompt "/review"</code></pre>
 
-        <p>このコマンドはインタラクティブセッションを開始せず、1回のプロンプトを処理して終了します。<code>.bob/rules/</code> の開発標準とセキュリティ観点に基づくコードレビューが、ブラウザを開かずに実行されます。CI/CDのパイプラインに組み込めば、コミットやプルリクエストのたびに自動でレビューを走らせる、といった運用も可能です。CI/CDでは、<code>BOBSHELL_API_KEY</code>をCI/CDのシークレットとして登録し、ログに出力しないでください。</p>
+        <p>このコマンドはインタラクティブセッションを開始せず、1回のプロンプトを処理して終了します。<code>.bob/rules/</code> の開発標準とセキュリティ観点に基づくコードレビューが、ブラウザを開かずに実行されます。CI/CDのパイプラインに組み込めば、コミットやプルリクエストのたびに自動でレビューを走らせる、といった運用も可能です。CI/CDでは、<code>BOB_API_KEY</code>をCI/CDのシークレットとして登録し、ログに出力しないでください。</p>
         
         <h2 id="トラブルシューティング">トラブルシューティング</h2>
         
