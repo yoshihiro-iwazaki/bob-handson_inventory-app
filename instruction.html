@@ -1002,10 +1002,8 @@ Press CTRL+C to quit
             <li>生成された Rules ドキュメントの内容は必ず確認してください</li>
             <li>カスタムルールは1ファイルでも複数ファイルでも構いません、「どの粒度で分けるか」も考えてもらうと理解が深まります</li>
             <li>早めに完了した方は、HTML向けのRulesドキュメントの生成と適用も試してみてください</li>
-            <li>シナリオ①の <code>/init</code> は規約ファイルが無い状態で動くため、<strong>既存コードの圧縮スタイルを「このプロジェクトの流儀」として書き込みます</strong>。</li>
-            <li>書き込まれるのは <code>AGENTS.md</code> と <code>.bob/rules-agent/AGENTS.md</code> の<strong>2ファイル</strong>。スタイルの記述を消すか、「規約は <code>.bob/rules/</code> を参照」に置き換えてください。放置するとシナリオ③のカスタムモードが引き継ぎます。</li>
-            <li>Bob にまとめて直させるなら、STEP2 のプロンプトに追記してください。<br><code>あわせて AGENTS.md と .bob/rules-agent/AGENTS.md からスタイルに関する記述は削除してください。既存コードの現状スタイルは記述しないでください。</code></li>
-            <li>役割分担の目安は、<strong>規約は <code>.bob/rules/</code>、プロジェクト固有の事実（ポート番号・データ保存方式など）は <code>AGENTS.md</code></strong>。</li>
+            <li>シナリオ①の <code>/init</code> は規約ファイルが無い状態で動くため、既存コードのスタイルを <code>AGENTS.md</code> と <code>.bob/rules-agent/AGENTS.md</code> に書き込みます。Rules と食い違う記述があれば削除してください（シナリオ③のカスタムモードが引き継ぐことがあります）。</li>
+            <li>役割分担の目安は、<strong>規約は <code>.bob/rules/</code>、プロジェクト固有の事実は <code>AGENTS.md</code></strong>。</li>
         </ul>
         
         <h2 id="シナリオ3">シナリオ③ カスタムモード作成 &amp; 機能追加</h2>
@@ -1132,7 +1130,7 @@ context7でFlask・pandasの公式ドキュメントを参照しながら実装�
         
         <ul>
             <li>生成された <code>custom_modes.yaml</code> の内容は必ず確認してください</li>
-            <li>早めに完了した場合は、以下の例を参考に、追加で機能をもう一つ実装しても構いません。
+            <li>早めに完了した場合は、以下の例を参考に、追加で機能を実装にチャレンジ！
                 <ul>
                     <li>追加できる機能の例:
                         <ul>
@@ -1351,34 +1349,14 @@ powershell -c "& ([scriptblock]::Create((irm -Uri https://bob.ibm.com/download/b
         <div class="note">
             <strong>CI/CDで使う場合に便利なオプション:</strong> <code>bob run</code> には次のオプションを付けられます。
             <ul>
-                <li><code>--format json</code> / <code>--format stream-json</code> — 結果を機械可読な形式で出力する（後続処理やログ収集向け）。CI/CDでは後述のエラー検知のためにも必要です</li>
-                <li><code>--max-cost &lt;n&gt;</code> — <strong>コストの上限。無人実行の暴走対策はまずこれ</strong>を使ってください</li>
-                <li><code>--disable-mcp</code> — MCPサーバーを使わない。CIが外部サーバーの死活に左右されなくなります</li>
-                <li><code>--max-turns &lt;n&gt;</code> — モデルへのリクエスト回数の上限。<strong>ツール呼び出し回数ではありません</strong>（1ターンで複数ツールを並列に呼べます）。同じ1ターンでもコストは大きく変動するため予算管理には向きません。使うなら 50〜100 程度の非常ブレーキとして指定し、低い値は避けてください</li>
+                <li><code>--format json</code> / <code>--format stream-json</code> — 結果を機械可読な形式で出力します。CI/CDでは後述のエラー検知のためにも必要です</li>
+                <li><code>--max-cost &lt;n&gt;</code> — <strong>コストの上限です。無人実行の暴走対策などのユースケースで利用します</strong></li>
+                <li><code>--disable-mcp</code> — MCPサーバーを使わないようになります。</li>
+                <li><code>--max-turns &lt;n&gt;</code> — モデルへのリクエスト回数の上限です。</li>
             </ul>
-            <code>--max-turns</code> は指定しなくても既定で <strong>100</strong> が適用されます（<code>--max-cost</code> の既定は 0 = 無制限）。手元で試す間はどちらも付けなくて構いません。
-            なお <code>bob --prompt "/review"</code> と書いても同じヘッドレス実行になります（引数なしの <code>bob</code> は、<code>--prompt</code> が付いているか標準入力が端末でない場合、自動的に <code>run</code> として動作します）。公式ドキュメントで案内されているのは <code>bob run</code> の形式です。
+            <code>--max-turns</code> は指定しなくても既定で <strong>100</strong> が適用されます
         </div>
         
-        <div class="warning">
-            <strong>注意: 上限に達して途中で終わっても「成功」扱いになります。</strong>
-            <code>--max-cost</code> や <code>--max-turns</code> の上限に達した場合、処理は途中で打ち切られますが
-            <strong>終了コードは 0、<code>--format json</code> の <code>result.status</code> も <code>success</code> のまま</strong>です。
-            <code>bob run ... &amp;&amp; echo OK</code> のような書き方では失敗を検知できません。
-            CI/CDでは <code>--format json</code> を付けたうえで、<code>type</code> が <code>error</code> の行が出ていないかを確認してください。
-            <pre><code>bob run "/review" --format json --max-cost 2.0 &gt; result.jsonl
-if jq -e 'select(.type=="error")' result.jsonl &gt;/dev/null; then
-  jq -r 'select(.type=="error") | .message' result.jsonl &gt;&amp;2
-  exit 1
-fi</code></pre>
-            なお API key が不正な場合など<strong>起動自体に失敗したとき</strong>は、終了コード 1 で停止します。
-        </div>
-
-        <div class="warning">
-            <strong>注意: ヘッドレス実行ではツールの実行が自動承認されます。</strong>
-            非インタラクティブセッションでは auto-approve が既定の動作になるため、ファイルの編集やコマンドの実行について確認プロンプトは表示されません。
-            CI/CDに組み込む際は、実行させたくない操作が含まれていないか、Rules や Skill の内容を事前に確認してください。
-        </div>
         
         <h3>参考: Bob Shell 公式ドキュメント</h3>
         
