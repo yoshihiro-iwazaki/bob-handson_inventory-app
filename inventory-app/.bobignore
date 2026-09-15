@@ -1,5 +1,3 @@
-python-coding-rules.txt
-
 # Bob のコンテキストに含めないファイル
 venv/
 .venv/

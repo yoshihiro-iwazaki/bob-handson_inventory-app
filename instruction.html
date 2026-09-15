@@ -222,6 +222,11 @@
             border-left: 4px solid #0f62fe;
         }
         
+        .prompt-textarea.scroll-box {
+            max-height: 420px;
+            overflow-y: auto;
+        }
+        
         pre code {
             background-color: transparent;
             color: #f4f4f4;
@@ -487,7 +492,7 @@
             <li><a href="#シナリオ2">シナリオ② カスタム・ルール作成</a></li>
             <li><a href="#シナリオ3">シナリオ③ カスタムモード作成 &amp; 機能追加</a></li>
             <li><a href="#シナリオ4">シナリオ④ Skills 作成 &amp; コードレビュー</a></li>
-            <li><a href="#optional-bobshell">オプション: Bob Shell の概要</a></li>
+            <li><a href="#optional-bobshell">オプション: Bob Shell ハンズオン</a></li>
             <li><a href="#トラブルシューティング">トラブルシューティング</a></li>
         </ul>
     </nav>
@@ -506,7 +511,7 @@
                 <li><a href="#シナリオ2">シナリオ② コーディング規約から、カスタム・ルール作成と適用</a></li>
                 <li><a href="#シナリオ3">シナリオ③ カスタムモード作成 &amp; 機能追加</a></li>
                 <li><a href="#シナリオ4">シナリオ④ Skills 作成 &amp; コードレビュー</a></li>
-                <li><a href="#optional-bobshell">オプション: Bob Shell の概要</a></li>
+                <li><a href="#optional-bobshell">オプション: Bob Shell ハンズオン</a></li>
                 <li><a href="#トラブルシューティング">トラブルシューティング</a></li>
             </ol>
         </div>
@@ -570,7 +575,7 @@
                     <td>シナリオ③ MCP（context7）設定 &amp; カスタムモード（<code>🐼 実装モード</code>）作成 &amp; 機能追加</td>
                 </tr>
                 <tr>
-                    <td>シナリオ④ Skills 作成（<code>code-review</code> スキル）＆ コードレビュー実施</td>
+                    <td>シナリオ④ Skills 作成（<code>review</code> スキル）＆ コードレビュー実施</td>
                 </tr>
             </tbody>
         </table>
@@ -640,11 +645,10 @@
 │   ├── history.html
 │   ├── index.html
 │   └── products.html
-├── .bobignore　　　　　　　　　　　　　　　#Bobがアクセスしないファイルの指定（シナリオ②で使用）
+├── .bobignore　　　　　　　　　　　　　　　#Bobのコンテキストに含めないファイルの指定
 ├── .gitignore
 ├── app.py　　　　　　　　　　　　　　　　　#アプリのメインファイル
 ├── data_manager.py
-├── python-coding-rules.txt　　　　　　　　#既存のコーディング規約（シナリオ②で使用）
 ├── README.md
 └── requirements.txt</code></pre>
         
@@ -860,12 +864,97 @@ Press CTRL+C to quit
         
         <h3>実施手順とプロンプト</h3>
         
-        <h4>STEP1: 既存のコーディング規約の確認</h4>
+        <h4>STEP1: 既存のコーディング規約を用意する</h4>
         
-        <ul>
-            <li>ルートディレクトリ（現在開いているフォルダ）配下に、<code>python-coding-rules.txt</code> ファイルが存在することを確認してください。その内容は、PEP 8（Pythonの標準的なコーディング規約）からの一部抜粋です。社内に既に存在するプロジェクト開発ルールや規約の一例として、イメージを持っていただければ幸いです。</li>
-            <li>同様に、ルートディレクトリ配下にある <code>.bobignore</code> ファイルを確認して、1行目の先頭に<code>#</code>を追加してください。(<code>.bobignore</code>ファイルは、Bob がアクセス可能なファイルを制御するためのファイルです。)</li>
-        </ul>
+        <p>
+            社内にすでにコーディング規約が存在する、という想定で進めます。
+            ルートディレクトリ（現在開いているフォルダ）の直下に <code>python-coding-rules.txt</code> を新規作成し、
+            以下の内容を貼り付けて保存してください。PEP 8（Pythonの標準的なコーディング規約）からの一部抜粋です。
+        </p>
+        
+        <div class="code-block-wrapper">
+            <span class="prompt-hint">✏️ 編集してコピーできます</span>
+            <textarea class="prompt-textarea scroll-box" spellcheck="false" rows="20"># Python コーディング規約
+
+## 1. 命名規則
+
+- **ファイル名**：snake_case を使用
+- **クラス名**：PascalCase を使用
+- **関数/メソッド名**：snake_case を使用
+- **変数名**：snake_case を使用
+- **定数**：UPPER_SNAKE_CASE を使用
+- **プライベート変数**：_snake_case を使用（アンダースコアで始める）
+- 命名は説明的であること。単一文字や略語は避ける
+
+## 2. Docstring（ドキュメント文字列）
+
+- すべての関数とクラスに Docstring を記述すること
+- 関数の Docstring には以下を含める：概要、引数（Args）、戻り値（Returns）、例外（Raises）
+- クラスの Docstring には以下を含める：クラスの目的、属性（Attributes）
+- 日本語で記述すること
+
+## 3. Import の順序
+
+以下の順序で整理し、各グループ間に空行を入れる：
+1. 標準ライブラリ
+2. サードパーティライブラリ
+3. ローカルモジュール
+
+## 4. コードフォーマット
+
+- **行の長さ**：1行は最大 100 文字まで
+- **インデント**：スペース 4 つを使用。タブは使用禁止
+- **空行**：クラス定義の前後に 2 行、関数定義の前後に 2 行、メソッド間は 1 行
+- 長い行は適切に改行し、可読性を保つこと
+
+## 5. コメント規約
+
+- 日本語で記述すること
+- 「何を」ではなく「なぜ」を説明すること
+- 自明なコードにはコメント不要
+- 複数行のコメントは各行の先頭に # を付ける
+
+## 6. 例外処理
+
+- 具体的な例外タイプをキャッチすること。裸の except は使用禁止
+- 必要に応じて raise で例外を再送出すること
+- 例外情報をログに記録すること
+
+## 7. 型ヒント
+
+- 型ヒント（Type Hints）の使用を推奨
+- typing モジュールの List、Dict、Optional などを使用すること
+
+## 8. コードスタイル
+
+- **リスト内包表記**：シンプルな処理のみに使用。複雑な処理は通常のループを使用
+- **文字列フォーマット**：f-string を優先使用（Python 3.6+）。format() メソッドも可。% フォーマットは禁止
+- **関数設計**：単一責任の原則に従うこと。1 つの関数は最大 50 行まで
+
+## 9. 禁止事項
+
+以下は厳格に禁止：
+- グローバル変数の使用
+- 可変デフォルト引数の使用（例：def func(items=[])）
+- 裸の except によるすべての例外のキャッチ
+- from module import * の使用
+
+## 10. pandas 使用規約
+
+- メソッドチェーンを優先的に使用すること
+- 条件フィルタリングにはブール索引を使用すること
+- 必要な列を明示的に指定すること
+
+
+**参考標準**：PEP 8 -- Style Guide for Python Code(https://pep8.org/)
+**注意**：本規約は強制実施基準です。すべてのコード提出前にチェックを通過する必要があります。</textarea>
+        </div>
+        
+        <div class="note">
+            <strong>ポイント:</strong> ここで用意するのは<strong>人間向けに書かれた規約</strong>です。
+            この後のSTEP2で、これを Bob が参照できる形式（Rules ドキュメント）に変換します。
+            お手元に実際の規約をお持ちであれば、それを貼り付けていただいても構いません。
+        </div>
         
         <h4>STEP2: 既存のコーディング規約からRulesドキュメントを生成</h4>
         
@@ -913,7 +1002,10 @@ Press CTRL+C to quit
             <li>生成された Rules ドキュメントの内容は必ず確認してください</li>
             <li>カスタムルールは1ファイルでも複数ファイルでも構いません、「どの粒度で分けるか」も考えてもらうと理解が深まります</li>
             <li>早めに完了した方は、HTML向けのRulesドキュメントの生成と適用も試してみてください</li>
-            <li>先ほど生成した <code>AGENTS.md</code> にコーディング規約が含まれている場合は、ルールと矛盾しないように修正するか、該当箇所を削除してください。（コーディング規約と <code>AGENTS.md</code> は分離して管理することを推奨します。）</li>
+            <li>シナリオ①の <code>/init</code> は規約ファイルが無い状態で動くため、<strong>既存コードの圧縮スタイルを「このプロジェクトの流儀」として書き込みます</strong>。</li>
+            <li>書き込まれるのは <code>AGENTS.md</code> と <code>.bob/rules-agent/AGENTS.md</code> の<strong>2ファイル</strong>。スタイルの記述を消すか、「規約は <code>.bob/rules/</code> を参照」に置き換えてください。放置するとシナリオ③のカスタムモードが引き継ぎます。</li>
+            <li>Bob にまとめて直させるなら、STEP2 のプロンプトに追記してください。<br><code>あわせて AGENTS.md と .bob/rules-agent/AGENTS.md からスタイルに関する記述は削除してください。既存コードの現状スタイルは記述しないでください。</code></li>
+            <li>役割分担の目安は、<strong>規約は <code>.bob/rules/</code>、プロジェクト固有の事実（ポート番号・データ保存方式など）は <code>AGENTS.md</code></strong>。</li>
         </ul>
         
         <h2 id="シナリオ3">シナリオ③ カスタムモード作成 &amp; 機能追加</h2>
@@ -1002,7 +1094,7 @@ context7でFlask・pandasの公式ドキュメントを参照しながら実装�
     groups:
       - read
       - edit
-      - command
+      - execute
       - mcp
     customInstructions: |-
       実装前に必ず context7 の resolve-library-id → query-docs の順で
@@ -1155,11 +1247,11 @@ context7でFlask・pandasの公式ドキュメントを参照しながら実装�
         
         <h3>STEP1: Bob Shell のインストール</h3>
         
-        <p>Bob Shell は Node.js 上で動作するCLIツールです。Bob IDE とは独立して、公式のインストールスクリプトでセットアップします。</p>
+        <p>Bob Shell は Node.js 上で動作するCLIツールです。Bob IDE とは独立して、公式のインストールスクリプトでセットアップします。（公式手順: <a href="https://bob.ibm.com/docs/shell/getting-started/install-and-setup" target="_blank" rel="noopener">Installing</a>）</p>
         
         <div class="note">
             <strong>前提: Node.js が必要です。</strong>
-            公式の要件は <strong>Node.js 24 以降</strong>です。
+            公式の要件は <strong>Node.js 24 以降</strong>です。（インストールスクリプト自体は 22.15 以上であれば通りますが、公式要件に合わせて 24 以降を用意してください。）
             ターミナルで <code>node -v</code> を実行して確認し、コマンドが見つからない場合やバージョンが古い場合は
             <a href="https://nodejs.org/" target="_blank" rel="noopener">nodejs.org</a> から LTS 版をインストールしてください。
         </div>
@@ -1214,7 +1306,7 @@ powershell -c "& ([scriptblock]::Create((irm -Uri https://bob.ibm.com/download/b
         <p>引数なしの <code>bob</code> はインタラクティブセッション（ターミナルUI）を起動します。<code>bob chat</code> と明示しても同じです。</p>
         
         <div class="note">
-            <strong>初回起動時:</strong> IBMのライセンス条項への同意と、ブラウザでのサインイン（IBMid / SSO）を求められる場合があります。画面の案内に従って進めてください。
+            <strong>初回起動時:</strong> IBMのライセンス条項への同意と、ブラウザでのサインイン（IBMid / SSO）を求められる場合があります。また、そのフォルダを初めて開いたときは<strong>フォルダを信頼するかの確認</strong>が表示されます。画面の案内に従って進めてください（確認を省略したい場合は <code>bob --trust</code> で起動できます）。
         </div>
         
         <p>Bob Shell が起動したら、インタラクティブセッションで次の質問を入力します。</p>
@@ -1226,7 +1318,7 @@ powershell -c "& ([scriptblock]::Create((irm -Uri https://bob.ibm.com/download/b
         
         <h3>STEP3: API key の取得</h3>
         
-        <p>非インタラクティブセッションでBob Shellを実行する場合（ブラウザを開けない環境やCI/CDなど）は、API key認証を使用します。</p>
+        <p>非インタラクティブセッションでBob Shellを実行する場合（ブラウザを開けない環境やCI/CDなど）は、API key認証を使用します。（公式手順: <a href="https://bob.ibm.com/docs/ide/account/api-keys" target="_blank" rel="noopener">API keys</a>）</p>
         
         <ol>
             <li><a href="https://bob.ibm.com">Bob Web</a> にサインインします。</li>
@@ -1235,9 +1327,14 @@ powershell -c "& ([scriptblock]::Create((irm -Uri https://bob.ibm.com/download/b
             <li>表示されたAPI keyを安全な場所にコピーします。作成後はキーの値を再表示できないため、ソースコードやログに記録しないでください。</li>
         </ol>
         
+        <div class="note">
+            <strong>キーの種類について:</strong> <strong>Inference</strong> はインスタンスとチームに紐づき、推論リクエスト専用のキーです。追加の指定なしでそのまま使えるため、本ハンズオンではこちらを選択してください。
+            もう一方の <strong>General</strong> を選んだ場合は、実行時に <code>--team-id &lt;team-id&gt;</code> の指定が別途必要になります（例: <code>bob run "/review" --team-id &lt;team-id&gt;</code>）。
+        </div>
+        
         <h3>STEP4: 非インタラクティブセッションで Bob Shell を実行</h3>
         
-        <p>取得したAPI keyを環境変数に設定します。以下はmacOS/Linuxの例です。</p>
+        <p>取得したAPI keyを環境変数に設定します。以下はmacOS/Linuxの例です。（公式手順: <a href="https://bob.ibm.com/docs/shell/getting-started/start-bobshell-non-interactive" target="_blank" rel="noopener">Starting a non-interactive session</a>）</p>
         
         <pre><code>export BOB_API_KEY="取得したAPI key"</code></pre>
         
@@ -1247,9 +1344,100 @@ powershell -c "& ([scriptblock]::Create((irm -Uri https://bob.ibm.com/download/b
         
         <p>環境変数に設定したAPI keyを使い、非インタラクティブセッションでシナリオ④で作成した <code>/review</code> スキルを実行します。あらかじめシナリオ④で <code>/review</code> スキルを作成しておいてください。</p>
 
-        <pre><code>bob --prompt "/review"</code></pre>
+        <pre><code>bob run "/review"</code></pre>
 
-        <p>このコマンドはインタラクティブセッションを開始せず、1回のプロンプトを処理して終了します。<code>.bob/rules/</code> の開発標準とセキュリティ観点に基づくコードレビューが、ブラウザを開かずに実行されます。CI/CDのパイプラインに組み込めば、コミットやプルリクエストのたびに自動でレビューを走らせる、といった運用も可能です。CI/CDでは、<code>BOB_API_KEY</code>をCI/CDのシークレットとして登録し、ログに出力しないでください。</p>
+        <p>このコマンドはインタラクティブセッションを開始せず、1回のプロンプトを処理して終了します。<code>.bob/rules/</code> の開発標準とセキュリティ観点に基づくコードレビューが、ブラウザを開かずに実行されます。実行が終わると、かかったコスト・所要時間・ツール呼び出し回数などのサマリが表示されます。CI/CDのパイプラインに組み込めば、コミットやプルリクエストのたびに自動でレビューを走らせる、といった運用も可能です。CI/CDでは、<code>BOB_API_KEY</code>をCI/CDのシークレットとして登録し、ログに出力しないでください。</p>
+        
+        <div class="note">
+            <strong>CI/CDで使う場合に便利なオプション:</strong> <code>bob run</code> には次のオプションを付けられます。
+            <ul>
+                <li><code>--format json</code> / <code>--format stream-json</code> — 結果を機械可読な形式で出力する（後続処理やログ収集向け）。CI/CDでは後述のエラー検知のためにも必要です</li>
+                <li><code>--max-cost &lt;n&gt;</code> — <strong>コストの上限。無人実行の暴走対策はまずこれ</strong>を使ってください</li>
+                <li><code>--disable-mcp</code> — MCPサーバーを使わない。CIが外部サーバーの死活に左右されなくなります</li>
+                <li><code>--max-turns &lt;n&gt;</code> — モデルへのリクエスト回数の上限。<strong>ツール呼び出し回数ではありません</strong>（1ターンで複数ツールを並列に呼べます）。同じ1ターンでもコストは大きく変動するため予算管理には向きません。使うなら 50〜100 程度の非常ブレーキとして指定し、低い値は避けてください</li>
+            </ul>
+            <code>--max-turns</code> は指定しなくても既定で <strong>100</strong> が適用されます（<code>--max-cost</code> の既定は 0 = 無制限）。手元で試す間はどちらも付けなくて構いません。
+            なお <code>bob --prompt "/review"</code> と書いても同じヘッドレス実行になります（引数なしの <code>bob</code> は、<code>--prompt</code> が付いているか標準入力が端末でない場合、自動的に <code>run</code> として動作します）。公式ドキュメントで案内されているのは <code>bob run</code> の形式です。
+        </div>
+        
+        <div class="warning">
+            <strong>注意: 上限に達して途中で終わっても「成功」扱いになります。</strong>
+            <code>--max-cost</code> や <code>--max-turns</code> の上限に達した場合、処理は途中で打ち切られますが
+            <strong>終了コードは 0、<code>--format json</code> の <code>result.status</code> も <code>success</code> のまま</strong>です。
+            <code>bob run ... &amp;&amp; echo OK</code> のような書き方では失敗を検知できません。
+            CI/CDでは <code>--format json</code> を付けたうえで、<code>type</code> が <code>error</code> の行が出ていないかを確認してください。
+            <pre><code>bob run "/review" --format json --max-cost 2.0 &gt; result.jsonl
+if jq -e 'select(.type=="error")' result.jsonl &gt;/dev/null; then
+  jq -r 'select(.type=="error") | .message' result.jsonl &gt;&amp;2
+  exit 1
+fi</code></pre>
+            なお API key が不正な場合など<strong>起動自体に失敗したとき</strong>は、終了コード 1 で停止します。
+        </div>
+
+        <div class="warning">
+            <strong>注意: ヘッドレス実行ではツールの実行が自動承認されます。</strong>
+            非インタラクティブセッションでは auto-approve が既定の動作になるため、ファイルの編集やコマンドの実行について確認プロンプトは表示されません。
+            CI/CDに組み込む際は、実行させたくない操作が含まれていないか、Rules や Skill の内容を事前に確認してください。
+        </div>
+        
+        <h3>参考: Bob Shell 公式ドキュメント</h3>
+        
+        <p>ハンズオンで扱えなかった機能や、詰まったときの一次情報はこちらを参照してください。</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>内容</th>
+                    <th>リンク</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Bob Shell の概要（ドキュメントのトップ）</td>
+                    <td><a href="https://bob.ibm.com/docs/shell" target="_blank" rel="noopener">Welcome to Bob Shell</a></td>
+                </tr>
+                <tr>
+                    <td>インストール（本STEP1の一次情報）</td>
+                    <td><a href="https://bob.ibm.com/docs/shell/getting-started/install-and-setup" target="_blank" rel="noopener">Installing</a></td>
+                </tr>
+                <tr>
+                    <td>インタラクティブセッションの使い方</td>
+                    <td><a href="https://bob.ibm.com/docs/shell/getting-started/start-bobshell-interactive" target="_blank" rel="noopener">Starting an interactive session</a></td>
+                </tr>
+                <tr>
+                    <td>非インタラクティブ（ヘッドレス）実行・CI/CD向け</td>
+                    <td><a href="https://bob.ibm.com/docs/shell/getting-started/start-bobshell-non-interactive" target="_blank" rel="noopener">Starting a non-interactive session</a></td>
+                </tr>
+                <tr>
+                    <td>スラッシュコマンド一覧</td>
+                    <td><a href="https://bob.ibm.com/docs/shell/features/slash-commands" target="_blank" rel="noopener">Slash commands</a></td>
+                </tr>
+                <tr>
+                    <td>ベストプラクティス（Mode の使い分け・セキュリティ）</td>
+                    <td><a href="https://bob.ibm.com/docs/shell/getting-started/best-practices" target="_blank" rel="noopener">Best practices</a></td>
+                </tr>
+                <tr>
+                    <td>使用例（実践的なプロンプト集）</td>
+                    <td><a href="https://bob.ibm.com/docs/shell/getting-started/bobshell-examples" target="_blank" rel="noopener">Usage examples</a></td>
+                </tr>
+                <tr>
+                    <td>トラブルシューティング</td>
+                    <td><a href="https://bob.ibm.com/docs/shell/troubleshooting/troubleshoot" target="_blank" rel="noopener">Troubleshooting</a></td>
+                </tr>
+                <tr>
+                    <td>アンインストール</td>
+                    <td><a href="https://bob.ibm.com/docs/shell/getting-started/uninstalling-bobshell" target="_blank" rel="noopener">Uninstalling</a></td>
+                </tr>
+                <tr>
+                    <td>API key の発行（Bob IDE 側ドキュメント）</td>
+                    <td><a href="https://bob.ibm.com/docs/ide/account/api-keys" target="_blank" rel="noopener">API keys</a></td>
+                </tr>
+                <tr>
+                    <td>ダウンロードページ</td>
+                    <td><a href="https://bob.ibm.com/download?bob=shell" target="_blank" rel="noopener">Download</a></td>
+                </tr>
+            </tbody>
+        </table>
         
         <h2 id="トラブルシューティング">トラブルシューティング</h2>
         
